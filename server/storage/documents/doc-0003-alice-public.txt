@@ -1,0 +1,2 @@
+SecureDocs Threat Modeling Guide (Public Release)
+This whitepaper outlines rule-based anomaly detection models.

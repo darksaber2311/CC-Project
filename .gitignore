@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+storage/*.db
+storage/*.db-wal
+storage/*.db-shm
+storage/documents/*
+!storage/documents/.gitkeep
+.DS_Store
+Thumbs.db

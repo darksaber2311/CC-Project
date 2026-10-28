@@ -1,0 +1,26 @@
+{
+  "name": "securedocs",
+  "version": "1.0.0",
+  "description": "Secure document management platform with rule-based threat detection and risk assessment",
+  "private": true,
+  "workspaces": [
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "start": "node server/src/server.js",
+    "build": "npm --prefix client run build",
+    "seed": "node server/src/seed.js",
+    "test": "npm --prefix server test",
+    "server": "npm --prefix server run dev",
+    "client": "npm --prefix client run dev"
+  },
+  "keywords": [
+    "security",
+    "document-management",
+    "threat-detection",
+    "risk-assessment"
+  ],
+  "author": "",
+  "license": "ISC"
+}

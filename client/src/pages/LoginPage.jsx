@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { ShieldCheck, Lock, User, Eye, EyeOff, KeyRound, AlertCircle, Sparkles } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import { ShieldCheck, Lock, User, Eye, EyeOff, KeyRound, AlertCircle, CheckCircle2, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export function LoginPage() {
-  const [username, setUsername] = useState('');
+  const location = useLocation();
+  const [username, setUsername] = useState(location.state?.username || '');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(location.state?.successMessage || '');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { login } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
   const from = location.state?.from?.pathname || '/';
 
   const handleSubmit = async (e) => {
@@ -64,6 +65,13 @@ export function LoginPage() {
         <div className="bg-[#0f172a]/90 backdrop-blur-xl border border-slate-800 rounded-2xl p-6 sm:p-8 shadow-2xl shadow-black/80">
           <h2 className="text-lg font-semibold text-slate-100 mb-1">Sign In to Repository</h2>
           <p className="text-xs text-slate-400 mb-6">Enter your organizational credentials to continue.</p>
+
+          {success && (
+            <div className="mb-5 p-3.5 rounded-xl bg-emerald-950/60 border border-emerald-800/60 flex items-start space-x-3 text-emerald-200">
+              <CheckCircle2 className="w-5 h-5 flex-shrink-0 text-emerald-400 mt-0.5" />
+              <div className="text-xs leading-relaxed font-medium">{success}</div>
+            </div>
+          )}
 
           {error && (
             <div className="mb-5 p-3.5 rounded-xl bg-red-950/60 border border-red-800/60 flex items-start space-x-3 text-red-200">
@@ -132,6 +140,16 @@ export function LoginPage() {
               )}
             </button>
           </form>
+
+          {/* Sign Up Link */}
+          <div className="mt-4 text-center">
+            <p className="text-xs text-slate-400">
+              Don't have an account?{' '}
+              <Link to="/register" className="text-cyan-400 hover:text-cyan-300 font-medium underline-offset-2 hover:underline">
+                Create an account
+              </Link>
+            </p>
+          </div>
 
           {/* Quick Demo Credentials Picker for Viva */}
           <div className="mt-6 pt-5 border-t border-slate-800">

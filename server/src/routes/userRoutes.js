@@ -45,7 +45,7 @@ userRouter.patch('/:id/status', requireAuth, requireRole('admin'), (req, res) =>
   }
 
   const newStatus = isActive ? 1 : 0;
-  execute("UPDATE users SET is_active = ?, updated_at = datetime('now', 'utc') WHERE id = ?", newStatus, targetId);
+  execute("UPDATE users SET is_active = ?, updated_at = ? WHERE id = ?", newStatus, new Date().toISOString(), targetId);
 
   // Terminate active sessions if suspended
   if (newStatus === 0) {

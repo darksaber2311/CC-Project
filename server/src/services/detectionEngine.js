@@ -2,6 +2,7 @@ import crypto from 'node:crypto';
 import { db, execute, query, queryOne, transaction } from '../db.js';
 import { config } from '../config.js';
 import { riskScoring } from './riskScoring.js';
+import { auditService } from './auditService.js';
 
 export const detectionEngine = {
   /**
@@ -18,7 +19,7 @@ export const detectionEngine = {
       FROM audit_logs
       WHERE action = 'LOGIN_FAILURE'
         AND actor_username = ?
-        AND timestamp >= datetime('now', '-${rule.windowMinutes} minutes', 'utc')
+        AND timestamp >= strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-${rule.windowMinutes} minutes')
       ORDER BY timestamp DESC
     `, username);
 
@@ -43,7 +44,7 @@ export const detectionEngine = {
     const existingAlert = queryOne(`
       SELECT id FROM security_alerts 
       WHERE rule_id = ? AND trigger_username = ? AND status IN ('open', 'acknowledged')
-        AND detected_at >= datetime('now', '-${rule.windowMinutes} minutes', 'utc')
+        AND detected_at >= strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-${rule.windowMinutes} minutes')
       ORDER BY detected_at DESC
     `, rule.ruleId, username);
 
@@ -89,7 +90,7 @@ export const detectionEngine = {
       WHERE action = 'DOCUMENT_DOWNLOAD'
         AND outcome = 'success'
         AND actor_id = ?
-        AND timestamp >= datetime('now', '-${rule.windowMinutes} minutes', 'utc')
+        AND timestamp >= strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-${rule.windowMinutes} minutes')
       ORDER BY timestamp DESC
     `, userId);
 
@@ -112,7 +113,7 @@ export const detectionEngine = {
     const existingAlert = queryOne(`
       SELECT id FROM security_alerts 
       WHERE rule_id = ? AND trigger_user_id = ? AND status IN ('open', 'acknowledged')
-        AND detected_at >= datetime('now', '-${rule.windowMinutes} minutes', 'utc')
+        AND detected_at >= strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-${rule.windowMinutes} minutes')
       ORDER BY detected_at DESC
     `, rule.ruleId, userId);
 
@@ -157,7 +158,7 @@ export const detectionEngine = {
       FROM audit_logs
       WHERE outcome = 'denied'
         AND actor_id = ?
-        AND timestamp >= datetime('now', '-${rule.windowMinutes} minutes', 'utc')
+        AND timestamp >= strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-${rule.windowMinutes} minutes')
       ORDER BY timestamp DESC
     `, userId);
 
@@ -180,7 +181,7 @@ export const detectionEngine = {
     const existingAlert = queryOne(`
       SELECT id FROM security_alerts 
       WHERE rule_id = ? AND trigger_user_id = ? AND status IN ('open', 'acknowledged')
-        AND detected_at >= datetime('now', '-${rule.windowMinutes} minutes', 'utc')
+        AND detected_at >= strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-${rule.windowMinutes} minutes')
       ORDER BY detected_at DESC
     `, rule.ruleId, userId);
 
@@ -264,14 +265,15 @@ export const detectionEngine = {
   }) {
     return transaction(() => {
       const alertId = crypto.randomUUID();
+      const detectedAt = new Date().toISOString();
 
       execute(`
         INSERT INTO security_alerts (
           id, rule_id, title, description, severity, risk_score, 
           status, trigger_user_id, trigger_username, related_document_id, 
           detected_at, is_synthetic
-        ) VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?, datetime('now', 'utc'), ?)
-      `, alertId, ruleId, title, description, severity, riskScore, triggerUserId, triggerUsername, relatedDocumentId, isSynthetic);
+        ) VALUES (?, ?, ?, ?, ?, ?, 'open', ?, ?, ?, ?, ?)
+      `, alertId, ruleId, title, description, severity, riskScore, triggerUserId, triggerUsername, relatedDocumentId, detectedAt, isSynthetic);
 
       for (const logId of triggeringLogIds) {
         execute(`
@@ -280,13 +282,17 @@ export const detectionEngine = {
         `, alertId, logId);
       }
 
-      // Log alert creation
-      execute(`
-        INSERT INTO audit_logs (
-          id, timestamp, actor_id, actor_username, action, 
-          target_type, target_id, outcome, details_json
-        ) VALUES (?, datetime('now', 'utc'), NULL, 'SYSTEM', 'ALERT_CREATED', 'alert', ?, 'success', ?)
-      `, crypto.randomUUID(), alertId, JSON.stringify({ ruleId, severity, riskScore, title }));
+      // Log alert creation with exact UTC timestamp
+      auditService.logEvent({
+        actorId: null,
+        actorUsername: 'SYSTEM',
+        action: 'ALERT_CREATED',
+        targetType: 'alert',
+        targetId: alertId,
+        outcome: 'success',
+        timestamp: detectedAt,
+        details: { ruleId, severity, riskScore, title }
+      });
 
       return {
         id: alertId,
@@ -299,6 +305,7 @@ export const detectionEngine = {
         triggerUsername,
         triggerUserId,
         relatedDocumentId,
+        detectedAt,
         isSynthetic
       };
     });

@@ -178,7 +178,7 @@ npm run seed
 
 ### Step 3: Run Automated Test Suite
 ```powershell
-# Executes all 42 tests across all 6 test suites:
+# Executes all 52 tests across all 6 test suites:
 npm test
 ```
 

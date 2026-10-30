@@ -21,6 +21,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { documentApi } from '../api/documentApi.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { LoadingSpinner } from '../components/common/LoadingSpinner.jsx';
+import { formatDate } from '../utils/dateFormatter.js';
 
 export function DocumentsPage() {
   const { user, isAdmin } = useAuth();
@@ -252,7 +253,7 @@ export function DocumentsPage() {
                         {formatFileSize(doc.file_size)}
                       </td>
                       <td className="py-3 px-4 font-mono text-slate-400 text-[11px]">
-                        {new Date(doc.created_at).toLocaleDateString()}
+                        {formatDate(doc.created_at)}
                       </td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end space-x-2">

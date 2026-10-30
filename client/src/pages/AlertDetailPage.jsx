@@ -19,6 +19,7 @@ import {
 import { alertApi } from '../api/alertApi.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { LoadingSpinner } from '../components/common/LoadingSpinner.jsx';
+import { formatDateTime } from '../utils/dateFormatter.js';
 
 export function AlertDetailPage() {
   const { id } = useParams();
@@ -200,8 +201,8 @@ export function AlertDetailPage() {
               )}
 
               <div>
-                <span className="text-slate-500 block text-[10px] font-mono uppercase">Detection Time</span>
-                <p className="font-mono text-slate-300 mt-0.5">{new Date(alert.detected_at).toLocaleString()}</p>
+                <span className="text-slate-500 block text-[10px] font-mono uppercase">Detection Time (IST)</span>
+                <p className="font-mono text-slate-300 mt-0.5">{formatDateTime(alert.detected_at)}</p>
               </div>
 
               {alert.status === 'resolved' && (
@@ -211,7 +212,7 @@ export function AlertDetailPage() {
                     "{alert.resolution_note}"
                   </p>
                   <p className="text-[10px] text-slate-500 mt-1.5 font-mono">
-                    Resolved by @{alert.resolved_by_username || 'Admin'} on {new Date(alert.resolved_at).toLocaleString()}
+                    Resolved by @{alert.resolved_by_username || 'Admin'} on {formatDateTime(alert.resolved_at)}
                   </p>
                 </div>
               )}
@@ -252,7 +253,7 @@ export function AlertDetailPage() {
                         </span>
                       </div>
                       <span className="text-[11px] font-mono text-slate-400">
-                        {new Date(evt.timestamp).toLocaleString()}
+                        {formatDateTime(evt.timestamp)}
                       </span>
                     </div>
 

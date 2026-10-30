@@ -19,6 +19,7 @@ import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianG
 import { useAuth } from '../context/AuthContext.jsx';
 import { activityApi } from '../api/activityApi.js';
 import { LoadingSpinner } from '../components/common/LoadingSpinner.jsx';
+import { formatDateTime, formatTime } from '../utils/dateFormatter.js';
 
 export function DashboardPage() {
   const { user, isAdmin } = useAuth();
@@ -247,7 +248,7 @@ export function DashboardPage() {
                           <span className="text-xs font-semibold text-white truncate max-w-xs">{alert.title}</span>
                         </div>
                         <p className="text-[11px] text-slate-400 font-mono">
-                          Trigger: <span className="text-cyan-300">{alert.trigger_username || 'Unknown'}</span> • Score: <span className="text-amber-400 font-bold">{alert.risk_score}/100</span>
+                          Trigger: <span className="text-cyan-300">{alert.trigger_username || 'Unknown'}</span> • Score: <span className="text-amber-400 font-bold">{alert.risk_score}/100</span> • <span className="text-slate-400">{formatDateTime(alert.detected_at)}</span>
                         </p>
                       </div>
                       <Link 
@@ -305,7 +306,7 @@ export function DashboardPage() {
                       </div>
                     </div>
                     <span className="text-[11px] font-mono text-slate-400 flex-shrink-0">
-                      {new Date(evt.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {formatTime(evt.timestamp, { includeSeconds: false })}
                     </span>
                   </div>
                 );

@@ -2,8 +2,10 @@ import request from 'supertest';
 import assert from 'node:assert/strict';
 import { app } from '../src/server.js';
 import { query } from '../src/db.js';
+import { seedDatabase } from '../src/seed.js';
 
 async function runE2EWorkflow() {
+  seedDatabase();
   console.log('=== STARTING COMPLETE AUDIT DEMONSTRATION WORKFLOW ===');
 
   // Step 1: Login as Alice

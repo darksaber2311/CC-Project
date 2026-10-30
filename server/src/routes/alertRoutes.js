@@ -134,11 +134,12 @@ alertRouter.patch('/:id/acknowledge', (req, res, next) => {
       return res.status(400).json({ error: `Alert is already marked as ${alert.status}` });
     }
 
+    const acknowledgedAt = new Date().toISOString();
     execute(`
       UPDATE security_alerts 
-      SET status = 'acknowledged', acknowledged_at = datetime('now', 'utc'), acknowledged_by = ?
+      SET status = 'acknowledged', acknowledged_at = ?, acknowledged_by = ?
       WHERE id = ?
-    `, req.user.id, req.params.id);
+    `, acknowledgedAt, req.user.id, req.params.id);
 
     auditService.logEvent({
       actorId: req.user.id,
@@ -175,14 +176,15 @@ alertRouter.patch('/:id/resolve', (req, res, next) => {
       return res.status(400).json({ error: 'Alert is already resolved' });
     }
 
+    const resolvedAt = new Date().toISOString();
     execute(`
       UPDATE security_alerts 
       SET status = 'resolved', 
-          resolved_at = datetime('now', 'utc'), 
+          resolved_at = ?, 
           resolved_by = ?, 
           resolution_note = ?
       WHERE id = ?
-    `, req.user.id, resolutionNote.trim(), req.params.id);
+    `, resolvedAt, req.user.id, resolutionNote.trim(), req.params.id);
 
     auditService.logEvent({
       actorId: req.user.id,

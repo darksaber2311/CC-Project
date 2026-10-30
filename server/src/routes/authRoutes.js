@@ -1,11 +1,39 @@
 import { Router } from 'express';
 import { authService } from '../services/authService.js';
 import { requireAuth } from '../middleware/auth.js';
-import { loginRateLimiter } from '../middleware/rateLimiter.js';
+import { loginRateLimiter, registerRateLimiter } from '../middleware/rateLimiter.js';
 import { config } from '../config.js';
 import { execute, query, queryOne } from '../db.js';
 
 export const authRouter = Router();
+
+authRouter.post('/register', registerRateLimiter(), async (req, res, next) => {
+  try {
+    const { fullName, username, email, password, confirmPassword, department } = req.body;
+    const ipAddress = req.ip || req.connection.remoteAddress || '127.0.0.1';
+    const userAgent = req.headers['user-agent'] || 'Unknown';
+
+    const user = await authService.register({
+      fullName,
+      username,
+      email,
+      password,
+      confirmPassword,
+      department,
+      ipAddress,
+      userAgent
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Account created successfully. Please sign in with your credentials.',
+      user
+    });
+  } catch (err) {
+    const status = err.status || 400;
+    res.status(status).json({ error: err.message });
+  }
+});
 
 authRouter.post('/login', loginRateLimiter(), async (req, res, next) => {
   try {
@@ -93,9 +121,9 @@ authRouter.put('/profile', requireAuth, (req, res) => {
 
   execute(`
     UPDATE users 
-    SET full_name = ?, department = ?, updated_at = datetime('now', 'utc')
+    SET full_name = ?, department = ?, updated_at = ?
     WHERE id = ?
-  `, fullName.trim(), (department || '').trim(), req.user.id);
+  `, fullName.trim(), (department || '').trim(), new Date().toISOString(), req.user.id);
 
   const updatedUser = queryOne('SELECT id, username, email, role, full_name, department, is_active, created_at FROM users WHERE id = ?', req.user.id);
 

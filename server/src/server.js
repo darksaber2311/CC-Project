@@ -87,8 +87,8 @@ app.use(errorHandler);
 
 // If run directly, listen on port
 if (process.argv[1] && process.argv[1].endsWith('server.js')) {
-  app.listen(config.port, () => {
-    console.log(`[SecureDocs Server] Running on http://localhost:${config.port}`);
+  app.listen(config.port, '127.0.0.1', () => {
+    console.log(`[SecureDocs Server] Running on http://127.0.0.1:${config.port}`);
     console.log(`[SecureDocs Server] CORS configured for ${config.clientUrl}`);
   });
 }

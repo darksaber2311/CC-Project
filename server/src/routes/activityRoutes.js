@@ -74,7 +74,7 @@ activityRouter.get('/stats', requireAuth, (req, res, next) => {
              COUNT(*) as total_events,
              SUM(CASE WHEN outcome = 'failure' OR outcome = 'denied' THEN 1 ELSE 0 END) as security_flags
       FROM audit_logs
-      WHERE timestamp >= datetime('now', '-7 days', 'utc')
+      WHERE timestamp >= strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-7 days')
       GROUP BY strftime('%Y-%m-%d', timestamp)
       ORDER BY date ASC
     `);

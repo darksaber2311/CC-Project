@@ -120,7 +120,7 @@ export function seedDatabase() {
       INSERT INTO audit_logs (
         id, timestamp, actor_id, actor_username, action, 
         target_type, target_id, outcome, ip_address, user_agent, details_json
-      ) VALUES (?, datetime('now', '-2 hours', 'utc'), ?, ?, 'DOCUMENT_UPLOAD', 'document', ?, 'success', '127.0.0.1', 'Mozilla/5.0 SeedScript', ?)
+      ) VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-2 hours'), ?, ?, 'DOCUMENT_UPLOAD', 'document', ?, 'success', '127.0.0.1', 'Mozilla/5.0 SeedScript', ?)
     `, crypto.randomUUID(), doc.owner, doc.ownerUsername, doc.id, JSON.stringify({ filename: doc.original, sensitivity: doc.sensitivity }));
   }
 
@@ -143,7 +143,7 @@ export function seedDatabase() {
     INSERT INTO audit_logs (
       id, timestamp, actor_id, actor_username, action, 
       target_type, target_id, outcome, ip_address, user_agent, details_json
-    ) VALUES (?, datetime('now', '-1 hour', 'utc'), ?, 'alice', 'PERMISSION_GRANT', 'document', 'doc-0002-alice-internal', 'success', '127.0.0.1', 'Mozilla/5.0 SeedScript', ?)
+    ) VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-1 hour'), ?, 'alice', 'PERMISSION_GRANT', 'document', 'doc-0002-alice-internal', 'success', '127.0.0.1', 'Mozilla/5.0 SeedScript', ?)
   `, crypto.randomUUID(), aliceId, JSON.stringify({ grantee: 'bob', permissions: ['view', 'download'] }));
 
   console.log('✓ Granted Alice->Bob sharing permissions for Sprint Notes');
@@ -153,9 +153,9 @@ export function seedDatabase() {
     INSERT INTO audit_logs (
       id, timestamp, actor_id, actor_username, action, target_type, target_id, outcome, ip_address, user_agent, details_json
     ) VALUES 
-      (?, datetime('now', '-3 hours', 'utc'), ?, 'admin', 'LOGIN_SUCCESS', 'session', NULL, 'success', '127.0.0.1', 'Mozilla/5.0', '{"method":"password"}'),
-      (?, datetime('now', '-2 hours', 'utc'), ?, 'alice', 'LOGIN_SUCCESS', 'session', NULL, 'success', '127.0.0.1', 'Mozilla/5.0', '{"method":"password"}'),
-      (?, datetime('now', '-1 hour', 'utc'), ?, 'bob', 'LOGIN_SUCCESS', 'session', NULL, 'success', '127.0.0.1', 'Mozilla/5.0', '{"method":"password"}')
+      (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-3 hours'), ?, 'admin', 'LOGIN_SUCCESS', 'session', NULL, 'success', '127.0.0.1', 'Mozilla/5.0', '{"method":"password"}'),
+      (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-2 hours'), ?, 'alice', 'LOGIN_SUCCESS', 'session', NULL, 'success', '127.0.0.1', 'Mozilla/5.0', '{"method":"password"}'),
+      (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-1 hour'), ?, 'bob', 'LOGIN_SUCCESS', 'session', NULL, 'success', '127.0.0.1', 'Mozilla/5.0', '{"method":"password"}')
   `, crypto.randomUUID(), adminId, crypto.randomUUID(), aliceId, crypto.randomUUID(), bobId);
 
   console.log('✓ Seeded initial audit logs');

@@ -26,8 +26,8 @@ export function initDatabase() {
       full_name TEXT NOT NULL,
       department TEXT,
       is_active INTEGER NOT NULL DEFAULT 1,
-      created_at TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now', 'utc'))
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now'))
     );
     CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
     CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
@@ -39,7 +39,7 @@ export function initDatabase() {
       ip_address TEXT,
       user_agent TEXT,
       expires_at TEXT NOT NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
       FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE
     );
     CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
@@ -57,8 +57,8 @@ export function initDatabase() {
       description TEXT,
       storage_path TEXT NOT NULL,
       is_deleted INTEGER NOT NULL DEFAULT 0,
-      created_at TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
+      updated_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
       FOREIGN KEY(owner_id) REFERENCES users(id) ON DELETE RESTRICT
     );
     CREATE INDEX IF NOT EXISTS idx_documents_owner ON documents(owner_id);
@@ -72,7 +72,7 @@ export function initDatabase() {
       user_id TEXT NOT NULL,
       permission_type TEXT NOT NULL CHECK(permission_type IN ('view', 'download')),
       granted_by TEXT NOT NULL,
-      granted_at TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
+      granted_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
       UNIQUE(document_id, user_id, permission_type),
       FOREIGN KEY(document_id) REFERENCES documents(id) ON DELETE CASCADE,
       FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE CASCADE,
@@ -84,7 +84,7 @@ export function initDatabase() {
     -- 5. Audit Logs Table
     CREATE TABLE IF NOT EXISTS audit_logs (
       id TEXT PRIMARY KEY,
-      timestamp TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
+      timestamp TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
       actor_id TEXT,
       actor_username TEXT,
       action TEXT NOT NULL,
@@ -113,7 +113,7 @@ export function initDatabase() {
       trigger_user_id TEXT,
       trigger_username TEXT,
       related_document_id TEXT,
-      detected_at TEXT NOT NULL DEFAULT (datetime('now', 'utc')),
+      detected_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%SZ', 'now')),
       acknowledged_at TEXT,
       acknowledged_by TEXT,
       resolved_at TEXT,
@@ -138,6 +138,53 @@ export function initDatabase() {
       FOREIGN KEY(audit_log_id) REFERENCES audit_logs(id) ON DELETE CASCADE
     );
     CREATE INDEX IF NOT EXISTS idx_alert_events_log ON alert_events(audit_log_id);
+  `);
+
+  // Safe migration of legacy 'YYYY-MM-DD HH:MM:SS' strings to ISO 8601 UTC ('YYYY-MM-DDTHH:MM:SSZ')
+  db.exec(`
+    UPDATE audit_logs 
+    SET timestamp = replace(timestamp, ' ', 'T') || 'Z' 
+    WHERE timestamp NOT LIKE '%Z' AND timestamp LIKE '____-__-__ __:__:__%';
+
+    UPDATE users 
+    SET created_at = replace(created_at, ' ', 'T') || 'Z' 
+    WHERE created_at NOT LIKE '%Z' AND created_at LIKE '____-__-__ __:__:__%';
+
+    UPDATE users 
+    SET updated_at = replace(updated_at, ' ', 'T') || 'Z' 
+    WHERE updated_at NOT LIKE '%Z' AND updated_at LIKE '____-__-__ __:__:__%';
+
+    UPDATE documents 
+    SET created_at = replace(created_at, ' ', 'T') || 'Z' 
+    WHERE created_at NOT LIKE '%Z' AND created_at LIKE '____-__-__ __:__:__%';
+
+    UPDATE documents 
+    SET updated_at = replace(updated_at, ' ', 'T') || 'Z' 
+    WHERE updated_at NOT LIKE '%Z' AND updated_at LIKE '____-__-__ __:__:__%';
+
+    UPDATE document_permissions 
+    SET granted_at = replace(granted_at, ' ', 'T') || 'Z' 
+    WHERE granted_at NOT LIKE '%Z' AND granted_at LIKE '____-__-__ __:__:__%';
+
+    UPDATE security_alerts 
+    SET detected_at = replace(detected_at, ' ', 'T') || 'Z' 
+    WHERE detected_at NOT LIKE '%Z' AND detected_at LIKE '____-__-__ __:__:__%';
+
+    UPDATE security_alerts 
+    SET acknowledged_at = replace(acknowledged_at, ' ', 'T') || 'Z' 
+    WHERE acknowledged_at IS NOT NULL AND acknowledged_at NOT LIKE '%Z' AND acknowledged_at LIKE '____-__-__ __:__:__%';
+
+    UPDATE security_alerts 
+    SET resolved_at = replace(resolved_at, ' ', 'T') || 'Z' 
+    WHERE resolved_at IS NOT NULL AND resolved_at NOT LIKE '%Z' AND resolved_at LIKE '____-__-__ __:__:__%';
+
+    UPDATE sessions 
+    SET created_at = replace(created_at, ' ', 'T') || 'Z' 
+    WHERE created_at NOT LIKE '%Z' AND created_at LIKE '____-__-__ __:__:__%';
+
+    UPDATE sessions 
+    SET expires_at = replace(expires_at, ' ', 'T') || 'Z' 
+    WHERE expires_at NOT LIKE '%Z' AND expires_at LIKE '____-__-__ __:__:__%';
   `);
 }
 

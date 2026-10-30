@@ -64,7 +64,7 @@ test('Threat Detection Rules & Alert Lifecycle Verification', async (t) => {
     for (let i = 0; i < 5; i++) {
       execute(`
         INSERT INTO audit_logs (id, timestamp, actor_username, action, outcome)
-        VALUES (?, datetime('now', '-10 minutes', 'utc'), ?, 'LOGIN_FAILURE', 'failure')
+        VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-10 minutes'), ?, 'LOGIN_FAILURE', 'failure')
       `, crypto.randomUUID(), testUser);
     }
 
@@ -85,7 +85,7 @@ test('Threat Detection Rules & Alert Lifecycle Verification', async (t) => {
       const logId = crypto.randomUUID();
       execute(`
         INSERT INTO audit_logs (id, timestamp, actor_id, actor_username, action, outcome)
-        VALUES (?, datetime('now', 'utc'), ?, 'bob', 'DOCUMENT_DOWNLOAD', 'success')
+        VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now'), ?, 'bob', 'DOCUMENT_DOWNLOAD', 'success')
       `, logId, testUserId);
     }
 
@@ -98,7 +98,7 @@ test('Threat Detection Rules & Alert Lifecycle Verification', async (t) => {
     const logId = crypto.randomUUID();
     execute(`
       INSERT INTO audit_logs (id, timestamp, actor_id, actor_username, action, outcome)
-      VALUES (?, datetime('now', 'utc'), ?, 'bob', 'DOCUMENT_DOWNLOAD', 'success')
+      VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now'), ?, 'bob', 'DOCUMENT_DOWNLOAD', 'success')
     `, logId, testUserId);
 
     const alert = detectionEngine.checkExcessiveDownloads(testUserId, 'bob');
@@ -113,7 +113,7 @@ test('Threat Detection Rules & Alert Lifecycle Verification', async (t) => {
     const logId = crypto.randomUUID();
     execute(`
       INSERT INTO audit_logs (id, timestamp, actor_id, actor_username, action, outcome)
-      VALUES (?, datetime('now', 'utc'), ?, 'bob', 'DOCUMENT_DOWNLOAD', 'success')
+      VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now'), ?, 'bob', 'DOCUMENT_DOWNLOAD', 'success')
     `, logId, testUserId);
 
     const alert = detectionEngine.checkExcessiveDownloads(testUserId, 'bob');
@@ -128,7 +128,7 @@ test('Threat Detection Rules & Alert Lifecycle Verification', async (t) => {
     for (let i = 0; i < 10; i++) {
       execute(`
         INSERT INTO audit_logs (id, timestamp, actor_id, actor_username, action, outcome)
-        VALUES (?, datetime('now', '-10 minutes', 'utc'), ?, 'charlie', 'DOCUMENT_DOWNLOAD', 'success')
+        VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-10 minutes'), ?, 'charlie', 'DOCUMENT_DOWNLOAD', 'success')
       `, crypto.randomUUID(), testUserId);
     }
 
@@ -144,7 +144,7 @@ test('Threat Detection Rules & Alert Lifecycle Verification', async (t) => {
     for (let i = 0; i < 2; i++) {
       execute(`
         INSERT INTO audit_logs (id, timestamp, actor_id, actor_username, action, outcome)
-        VALUES (?, datetime('now', 'utc'), ?, 'charlie', 'ACCESS_DENIED', 'denied')
+        VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now'), ?, 'charlie', 'ACCESS_DENIED', 'denied')
       `, crypto.randomUUID(), testUserId);
     }
 
@@ -156,7 +156,7 @@ test('Threat Detection Rules & Alert Lifecycle Verification', async (t) => {
     const testUserId = '44444444-4444-4444-8444-444444444444';
     execute(`
       INSERT INTO audit_logs (id, timestamp, actor_id, actor_username, action, outcome)
-      VALUES (?, datetime('now', 'utc'), ?, 'charlie', 'ACCESS_DENIED', 'denied')
+      VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now'), ?, 'charlie', 'ACCESS_DENIED', 'denied')
     `, crypto.randomUUID(), testUserId);
 
     const alert = detectionEngine.checkDeniedAccess(testUserId, 'charlie', null, 'internal');
@@ -170,7 +170,7 @@ test('Threat Detection Rules & Alert Lifecycle Verification', async (t) => {
     const testUserId = '44444444-4444-4444-8444-444444444444';
     execute(`
       INSERT INTO audit_logs (id, timestamp, actor_id, actor_username, action, outcome)
-      VALUES (?, datetime('now', 'utc'), ?, 'charlie', 'ACCESS_DENIED', 'denied')
+      VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now'), ?, 'charlie', 'ACCESS_DENIED', 'denied')
     `, crypto.randomUUID(), testUserId);
 
     const alert = detectionEngine.checkDeniedAccess(testUserId, 'charlie', null, 'internal');
@@ -185,7 +185,7 @@ test('Threat Detection Rules & Alert Lifecycle Verification', async (t) => {
     for (let i = 0; i < 3; i++) {
       execute(`
         INSERT INTO audit_logs (id, timestamp, actor_id, actor_username, action, outcome)
-        VALUES (?, datetime('now', '-10 minutes', 'utc'), ?, 'alice', 'ACCESS_DENIED', 'denied')
+        VALUES (?, strftime('%Y-%m-%dT%H:%M:%SZ', 'now', '-10 minutes'), ?, 'alice', 'ACCESS_DENIED', 'denied')
       `, crypto.randomUUID(), testUser2);
     }
 

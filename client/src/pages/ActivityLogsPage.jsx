@@ -15,6 +15,7 @@ import {
 import { activityApi } from '../api/activityApi.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { LoadingSpinner } from '../components/common/LoadingSpinner.jsx';
+import { formatDateTime } from '../utils/dateFormatter.js';
 
 export function ActivityLogsPage() {
   const { addToast } = useToast();
@@ -121,6 +122,7 @@ export function ActivityLogsPage() {
             className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:border-cyan-500 font-mono"
           >
             <option value="">All Action Types</option>
+            <option value="USER_REGISTER">USER_REGISTER</option>
             <option value="LOGIN_SUCCESS">LOGIN_SUCCESS</option>
             <option value="LOGIN_FAILURE">LOGIN_FAILURE</option>
             <option value="LOGOUT">LOGOUT</option>
@@ -170,7 +172,7 @@ export function ActivityLogsPage() {
             <table className="w-full text-left text-xs border-collapse">
               <thead>
                 <tr className="border-b border-slate-800 bg-slate-950/50 text-slate-400 font-mono uppercase tracking-wider text-[11px]">
-                  <th className="py-3 px-4">Timestamp (UTC)</th>
+                  <th className="py-3 px-4">Timestamp (IST)</th>
                   <th className="py-3 px-4">Action</th>
                   <th className="py-3 px-4">Actor</th>
                   <th className="py-3 px-4">Target Type</th>
@@ -183,7 +185,7 @@ export function ActivityLogsPage() {
                 {logs.map((log) => (
                   <tr key={log.id} className="hover:bg-slate-900/50 transition-colors">
                     <td className="py-3 px-4 text-slate-400 text-[11px]">
-                      {new Date(log.timestamp).toLocaleString()}
+                      {formatDateTime(log.timestamp)}
                     </td>
                     <td className="py-3 px-4 font-bold text-slate-200">
                       {log.action}
@@ -262,7 +264,7 @@ export function ActivityLogsPage() {
                 <div>Event ID: <span className="text-white">{selectedLog.id}</span></div>
                 <div>Actor: <span className="text-cyan-300">{selectedLog.actor_username || 'Anonymous'}</span></div>
                 <div>Outcome: <span className="text-white">{selectedLog.outcome}</span></div>
-                <div>Timestamp: <span className="text-white">{new Date(selectedLog.timestamp).toLocaleString()}</span></div>
+                <div>Timestamp (IST): <span className="text-white">{formatDateTime(selectedLog.timestamp)}</span></div>
               </div>
 
               <div>

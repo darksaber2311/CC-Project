@@ -1,6 +1,13 @@
 import { apiRequest } from './client.js';
 
 export const authApi = {
+  register(data) {
+    return apiRequest('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  },
+
   login(username, password) {
     return apiRequest('/auth/login', {
       method: 'POST',

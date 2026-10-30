@@ -15,9 +15,11 @@ export const auditService = {
     ipAddress = null,
     userAgent = null,
     details = {},
-    correlationId = null
+    correlationId = null,
+    timestamp = null
   }) {
     const id = crypto.randomUUID();
+    const eventTimestamp = timestamp || new Date().toISOString();
     const detailsJson = JSON.stringify(details || {});
 
     execute(`
@@ -25,8 +27,8 @@ export const auditService = {
         id, timestamp, actor_id, actor_username, action, 
         target_type, target_id, outcome, ip_address, user_agent, 
         details_json, correlation_id
-      ) VALUES (?, datetime('now', 'utc'), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, id, actorId, actorUsername, action, targetType, targetId, outcome, ipAddress, userAgent, detailsJson, correlationId);
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, id, eventTimestamp, actorId, actorUsername, action, targetType, targetId, outcome, ipAddress, userAgent, detailsJson, correlationId);
 
     return id;
   },

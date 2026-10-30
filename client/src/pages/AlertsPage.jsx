@@ -18,6 +18,7 @@ import {
 import { alertApi } from '../api/alertApi.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { LoadingSpinner } from '../components/common/LoadingSpinner.jsx';
+import { formatDateTime } from '../utils/dateFormatter.js';
 
 export function AlertsPage() {
   const { addToast } = useToast();
@@ -211,7 +212,7 @@ export function AlertsPage() {
                   <th className="py-3 px-4">Risk Score</th>
                   <th className="py-3 px-4">Rule Engine ID</th>
                   <th className="py-3 px-4">Offender / Target</th>
-                  <th className="py-3 px-4">Timestamp</th>
+                  <th className="py-3 px-4">Detected At (IST)</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4 text-right">Triage Actions</th>
                 </tr>
@@ -258,7 +259,7 @@ export function AlertsPage() {
                       </div>
                     </td>
                     <td className="py-3 px-4 font-mono text-slate-400 text-[11px]">
-                      {new Date(alert.detected_at).toLocaleString()}
+                      {formatDateTime(alert.detected_at)}
                     </td>
                     <td className="py-3 px-4">
                       {getStatusBadge(alert.status)}

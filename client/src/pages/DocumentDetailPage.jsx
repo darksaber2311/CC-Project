@@ -24,6 +24,7 @@ import { documentApi } from '../api/documentApi.js';
 import { userApi } from '../api/userApi.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { LoadingSpinner } from '../components/common/LoadingSpinner.jsx';
+import { formatDateTime } from '../utils/dateFormatter.js';
 
 export function DocumentDetailPage() {
   const { id } = useParams();
@@ -264,8 +265,8 @@ export function DocumentDetailPage() {
               </div>
 
               <div>
-                <span className="text-slate-500 block text-[10px] font-mono uppercase">Ingested Date</span>
-                <p className="font-mono text-slate-300 mt-0.5">{new Date(doc.created_at).toLocaleString()}</p>
+                <span className="text-slate-500 block text-[10px] font-mono uppercase">Ingested Date (IST)</span>
+                <p className="font-mono text-slate-300 mt-0.5">{formatDateTime(doc.created_at)}</p>
               </div>
 
               {doc.description && (
@@ -390,7 +391,7 @@ export function DocumentDetailPage() {
                           <p className="text-[11px] text-slate-400">Actor: <span className="text-cyan-300 font-mono">{log.actor_username || 'Anonymous'}</span></p>
                         </div>
                       </div>
-                      <span className="text-[11px] font-mono text-slate-400">{new Date(log.timestamp).toLocaleString()}</span>
+                      <span className="text-[11px] font-mono text-slate-400">{formatDateTime(log.timestamp)}</span>
                     </div>
                   );
                 })}

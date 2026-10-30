@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { authApi } from '../api/authApi.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { LoadingSpinner } from '../components/common/LoadingSpinner.jsx';
+import { formatDateTime } from '../utils/dateFormatter.js';
 
 export function ProfilePage() {
   const { user, refreshUser } = useAuth();
@@ -169,7 +170,7 @@ export function ProfilePage() {
                       <span className={`w-2 h-2 rounded-full ${log.outcome === 'success' ? 'bg-emerald-400' : 'bg-red-400'}`}></span>
                       <span className="font-mono text-slate-200">{log.action}</span>
                     </div>
-                    <span className="text-slate-400 font-mono text-[11px]">{new Date(log.timestamp).toLocaleString()}</span>
+                    <span className="text-slate-400 font-mono text-[11px]">{formatDateTime(log.timestamp)}</span>
                   </div>
                 ))}
               </div>

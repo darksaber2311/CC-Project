@@ -3,6 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppShell } from './components/layout/AppShell.jsx';
 import { ProtectedRoute, AdminRoute } from './components/common/ProtectedRoute.jsx';
 import { LoginPage } from './pages/LoginPage.jsx';
+import { RegisterPage } from './pages/RegisterPage.jsx';
 import { DashboardPage } from './pages/DashboardPage.jsx';
 import { DocumentsPage } from './pages/DocumentsPage.jsx';
 import { UploadDocumentPage } from './pages/UploadDocumentPage.jsx';
@@ -18,8 +19,10 @@ import { ForbiddenPage, NotFoundPage } from './pages/ErrorPages.jsx';
 export default function App() {
   return (
     <Routes>
-      {/* Public Authentication Route */}
+      {/* Public Authentication Routes */}
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
+      <Route path="/signup" element={<Navigate to="/register" replace />} />
 
       {/* Protected Routes within App Shell */}
       <Route

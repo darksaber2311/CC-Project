@@ -55,12 +55,14 @@ export const documentService = {
     // Write file to private storage outside web root
     fs.writeFileSync(destinationPath, buffer);
 
+    const nowIso = new Date().toISOString();
     execute(`
       INSERT INTO documents (
         id, original_filename, stored_filename, owner_id, file_size, 
-        mime_type, file_extension, sensitivity_level, description, storage_path
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    `, documentId, sanitizedName, storedFilename, ownerId, buffer.length, mimeType, extension, normalizedSensitivity, (description || '').trim(), storedFilename);
+        mime_type, file_extension, sensitivity_level, description, storage_path,
+        created_at, updated_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `, documentId, sanitizedName, storedFilename, ownerId, buffer.length, mimeType, extension, normalizedSensitivity, (description || '').trim(), storedFilename, nowIso, nowIso);
 
     // Log upload in audit trail
     auditService.logEvent({
@@ -345,7 +347,7 @@ export const documentService = {
       throw err;
     }
 
-    execute("UPDATE documents SET is_deleted = 1, updated_at = datetime('now', 'utc') WHERE id = ?", id);
+    execute("UPDATE documents SET is_deleted = 1, updated_at = ? WHERE id = ?", new Date().toISOString(), id);
 
     auditService.logEvent({
       actorId: user.id,
@@ -381,10 +383,11 @@ export const documentService = {
     }
 
     const permId = crypto.randomUUID();
+    const grantedAt = new Date().toISOString();
     execute(`
-      INSERT OR REPLACE INTO document_permissions (id, document_id, user_id, permission_type, granted_by)
-      VALUES (?, ?, ?, ?, ?)
-    `, permId, documentId, targetUserId, permissionType, granterUser.id);
+      INSERT OR REPLACE INTO document_permissions (id, document_id, user_id, permission_type, granted_by, granted_at)
+      VALUES (?, ?, ?, ?, ?, ?)
+    `, permId, documentId, targetUserId, permissionType, granterUser.id, grantedAt);
 
     auditService.logEvent({
       actorId: granterUser.id,
